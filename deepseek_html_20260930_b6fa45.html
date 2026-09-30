@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PinS — Portugueses na Ciência (Singapura)</title>
+<style>
+  :root{
+    --gold:#C8A24A;
+    --gold-light:#E4C77A;
+    --navy:#1B2A41;
+    --navy-light:#2E4260;
+    --bg:#F7F8FA;
+    --text:#1B2A41;
+    --muted:#6B7280;
+    --white:#ffffff;
+    --shadow:0 4px 20px rgba(27,42,65,.08);
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text);background:var(--bg);line-height:1.65;font-size:16px;
+  }
+  a{color:var(--navy);text-decoration:none;}
+  a:hover{color:var(--gold);}
+  h1,h2,h3{font-weight:700;line-height:1.25;color:var(--navy);}
+  h1{font-size:2.6rem;}
+  h2{font-size:2rem;margin-bottom:1rem;}
+  h3{font-size:1.25rem;margin-bottom:.5rem;}
+  p{margin-bottom:1rem;}
+  ul{margin:0 0 1rem 1.25rem;}
+  li{margin-bottom:.5rem;}
+
+  /* ===== HEADER ===== */
+  header{
+    position:sticky;top:0;z-index:100;
+    background:var(--white);box-shadow:0 2px 12px rgba(0,0,0,.06);
+  }
+  .nav{
+    max-width:1200px;margin:0 auto;
+    display:flex;align-items:center;justify-content:space-between;
+    padding:1rem 1.5rem;flex-wrap:wrap;gap:1rem;
+  }
+  .logo{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.15rem;color:var(--navy);}
+  .logo-mark{
+    width:38px;height:38px;border-radius:50%;
+    background:linear-gradient(135deg,var(--gold),var(--gold-light));
+    display:flex;align-items:center;justify-content:center;
+    color:var(--navy);font-weight:800;font-size:1rem;
+  }
+  .nav-links{display:flex;gap:1.5rem;flex-wrap:wrap;align-items:center;}
+  .nav-links a{font-size:.95rem;font-weight:500;}
+  .lang-toggle{
+    display:flex;border:1px solid var(--navy);border-radius:20px;overflow:hidden;
+  }
+  .lang-toggle button{
+    border:none;background:transparent;padding:.35rem .8rem;cursor:pointer;
+    font-weight:600;font-size:.85rem;color:var(--navy);transition:.2s;
+  }
+  .lang-toggle button.active{background:var(--navy);color:var(--white);}
+  .btn{
+    display:inline-block;padding:.7rem 1.4rem;border-radius:24px;
+    font-weight:600;font-size:.95rem;cursor:pointer;border:none;transition:.2s;
+  }
+  .btn-primary{background:var(--gold);color:var(--navy);}
+  .btn-primary:hover{background:var(--gold-light);color:var(--navy);}
+  .btn-outline{background:transparent;border:1.5px solid var(--navy);color:var(--navy);}
+  .btn-outline:hover{background:var(--navy);color:var(--white);}
+  .btn-sm{padding:.4rem .9rem;font-size:.85rem;}
+
+  /* ===== HERO ===== */
+  .hero{
+    background:linear-gradient(135deg,var(--navy) 0%,var(--navy-light) 100%);
+    color:var(--white);padding:5rem 1.5rem;text-align:center;
+  }
+  .hero h1{color:var(--white);font-size:2.8rem;max-width:900px;margin:0 auto 1rem;}
+  .hero .anchor{
+    font-size:1.25rem;color:var(--gold-light);font-style:italic;
+    max-width:800px;margin:0 auto 2rem;
+  }
+  .hero-actions{display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;}
+
+  /* ===== SECTIONS ===== */
+  section{padding:4rem 1.5rem;max-width:1100px;margin:0 auto;}
+  section.alt{background:var(--white);max-width:none;padding:4rem 1.5rem;}
+  section.alt > .inner{max-width:1100px;margin:0 auto;}
+  .section-label{
+    text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;
+    color:var(--gold);font-weight:700;margin-bottom:.5rem;
+  }
+
+  /* ===== CARDS ===== */
+  .grid{display:grid;gap:1.5rem;}
+  .grid-2{grid-template-columns:repeat(auto-fit,minmax(320px,1fr));}
+  .grid-3{grid-template-columns:repeat(auto-fit,minmax(260px,1fr));}
+  .card{
+    background:var(--white);border-radius:var(--radius);
+    padding:1.75rem;box-shadow:var(--shadow);border-top:3px solid var(--gold);
+  }
+  .card h3{color:var(--navy);}
+  .card .icon{font-size:1.8rem;margin-bottom:.75rem;}
+
+  /* ===== OBJECTIVES LIST ===== */
+  .obj-list{list-style:none;margin-left:0;}
+  .obj-list li{
+    padding-left:2rem;position:relative;margin-bottom:1rem;
+  }
+  .obj-list li::before{
+    content:"◆";position:absolute;left:0;color:var(--gold);font-size:.9rem;top:.15rem;
+  }
+
+  /* ===== MEMBER AREA ===== */
+  .member-gate{
+    background:var(--white);border-radius:var(--radius);padding:2.5rem;
+    text-align:center;box-shadow:var(--shadow);border:1px dashed var(--gold);
+  }
+  .member-grid{display:grid;gap:1.25rem;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));}
+  .member-card{
+    background:var(--white);border-radius:var(--radius);padding:1.25rem;
+    box-shadow:var(--shadow);border-left:4px solid var(--gold);
+  }
+  .member-card .avatar{
+    width:56px;height:56px;border-radius:50%;background:var(--navy);
+    color:var(--white);display:flex;align-items:center;justify-content:center;
+    font-weight:700;font-size:1.25rem;margin-bottom:.75rem;
+  }
+  .member-card .meta{font-size:.85rem;color:var(--muted);margin-bottom:.25rem;}
+  .member-card a{font-size:.85rem;display:block;}
+
+  /* ===== FORMS ===== */
+  form{display:flex;flex-direction:column;gap:1rem;}
+  .form-row{display:grid;gap:1rem;grid-template-columns:1fr 1fr;}
+  @media(max-width:600px){.form-row{grid-template-columns:1fr;}}
+  label{font-size:.85rem;font-weight:600;color:var(--navy);display:block;margin-bottom:.35rem;}
+  input,select,textarea{
+    width:100%;padding:.7rem .9rem;border:1px solid #D5DAE1;border-radius:8px;
+    font-family:inherit;font-size:.95rem;background:var(--white);
+  }
+  input:focus,select:focus,textarea:focus{outline:2px solid var(--gold);border-color:var(--gold);}
+
+  /* ===== TIMELINE / HISTORY ===== */
+  .timeline{position:relative;padding-left:2rem;border-left:2px solid var(--gold);}
+  .timeline-item{position:relative;margin-bottom:2.5rem;}
+  .timeline-item::before{
+    content:"";position:absolute;left:-2.65rem;top:.3rem;
+    width:14px;height:14px;border-radius:50%;background:var(--gold);
+    border:3px solid var(--white);box-shadow:0 0 0 2px var(--gold);
+  }
+  .timeline-item .year{
+    font-weight:700;color:var(--gold);font-size:.9rem;
+    text-transform:uppercase;letter-spacing:.08em;
+  }
+
+  /* ===== EVENTS ===== */
+  .event-card{
+    background:var(--white);border-radius:var(--radius);padding:1.5rem;
+    box-shadow:var(--shadow);display:flex;gap:1.25rem;align-items:flex-start;
+    border-left:4px solid var(--gold);
+  }
+  .event-date{
+    background:var(--navy);color:var(--white);border-radius:8px;
+    padding:.6rem .8rem;text-align:center;min-width:64px;
+  }
+  .event-date .day{font-size:1.5rem;font-weight:800;line-height:1;}
+  .event-date .mon{font-size:.75rem;text-transform:uppercase;letter-spacing:.08em;}
+
+  /* ===== INITIATIVES ===== */
+  .initiative{
+    background:var(--white);border-radius:var(--radius);padding:1.5rem;
+    box-shadow:var(--shadow);margin-bottom:1rem;border-left:4px solid var(--gold);
+  }
+  .initiative .num{
+    display:inline-block;background:var(--navy);color:var(--white);
+    border-radius:50%;width:28px;height:28px;line-height:28px;text-align:center;
+    font-size:.85rem;font-weight:700;margin-right:.6rem;
+  }
+
+  /* ===== CONTACT ===== */
+  .contact-box{
+    background:linear-gradient(135deg,var(--navy),var(--navy-light));
+    color:var(--white);border-radius:var(--radius);padding:2.5rem;
+  }
+  .contact-box h2{color:var(--white);}
+  .contact-box a{color:var(--gold-light);}
+  .contact-box a:hover{color:var(--white);}
+
+  /* ===== FOOTER ===== */
+  footer{
+    background:var(--navy);color:#C8D0DC;padding:3rem 1.5rem 2rem;text-align:center;
+    font-size:.9rem;
+  }
+  footer a{color:var(--gold-light);}
+  footer .foot-logo{font-weight:700;color:var(--white);font-size:1.1rem;margin-bottom:.5rem;}
+
+  /* ===== MODAL ===== */
+  .modal-overlay{
+    display:none;position:fixed;inset:0;background:rgba(27,42,65,.75);
+    z-index:200;align-items:center;justify-content:center;padding:1rem;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:var(--white);border-radius:var(--radius);padding:2rem;
+    max-width:480px;width:100%;max-height:90vh;overflow-y:auto;
+  }
+  .modal h3{margin-bottom:1rem;}
+  .modal .close{
+    float:right;background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--muted);
+  }
+  .hidden{display:none !important;}
+  .toast{
+    position:fixed;bottom:2rem;left:50%;transform:translateX(-50%) translateY(120%);
+    background:var(--navy);color:var(--white);padding:.9rem 1.5rem;border-radius:24px;
+    font-size:.9rem;z-index:300;transition:.3s;box-shadow:var(--shadow);
+  }
+  .toast.show{transform:translateX(-50%) translateY(0);}
+
+  @media(max-width:768px){
+    h1{font-size:2rem;}.hero h1{font-size:2.1rem;}
+    .hero{padding:3.5rem 1.25rem;}
+    .nav-links{gap:1rem;}
+  }
+</style>
+</head>
+<body>
+
+<!-- ============ HEADER ============ -->
+<header>
+  <nav class="nav">
+    <div class="logo">
+      <div class="logo-mark">PinS</div>
+      <span>PinS — <span data-pt>Portugueses na Ciência</span><span data-en>Portuguese in Science</span></span>
+    </div>
+    <div class="nav-links">
+      <a href="#about" data-pt>Quem Somos</a><a href="#about" data-en>About</a>
+      <a href="#members" data-pt>Quem é Quem</a><a href="#members" data-en>Who is Who</a>
+      <a href="#history" data-pt>História</a><a href="#history" data-en>History</a>
+      <a href="#events" data-pt>Eventos</a><a href="#events" data-en>Events</a>
+      <a href="#opportunities" data-pt>Oportunidades</a><a href="#opportunities" data-en>Opportunities</a>
+      <div class="lang-toggle">
+        <button id="btn-pt" class="active" onclick="setLang('pt')">PT</button>
+        <button id="btn-en" onclick="setLang('en')">EN</button>
+      </div>
+      <button class="btn btn-primary btn-sm" id="authBtn" onclick="openAuth()" data-pt>Entrar</button>
+      <button class="btn btn-primary btn-sm" id="authBtnEn" onclick="openAuth()" data-en>Login</button>
+    </div>
+  </nav>
+</header>
+
+<!-- ============ HERO ============ -->
+<section class="hero">
+  <h1 data-pt>PinS — Portugueses na Ciência (Singapura)</h1>
+  <h1 data-en>PinS — Portuguese in Science (Singapore)</h1>
+  <p class="anchor" data-pt>A construir pontes científicas entre Portugal e Singapura.</p>
+  <p class="anchor" data-en>Building scientific bridges between Portugal and Singapore.</p>
+  <div class="hero-actions">
+    <a href="#members" class="btn btn-primary" data-pt>Junte-se à Rede</a>
+    <a href="#members" class="btn btn-primary" data-en>Join the Network</a>
+    <a href="#about" class="btn btn-outline" style="color:#fff;border-color:#fff" data-pt>Saber Mais</a>
+    <a href="#about" class="btn btn-outline" style="color:#fff;border-color:#fff" data-en>Learn More</a>
+  </div>
+</section>
+
+<!-- ============ ABOUT / MISSION ============ -->
+<section id="about">
+  <div class="section-label" data-pt>Quem Somos</div>
+  <div class="section-label" data-en>About Us</div>
+  <h2 data-pt>Missão</h2>
+  <h2 data-en>Mission</h2>
+  <p data-pt>A PINS — Portugueses na Ciência (Singapura) é um núcleo da APS que tem como missão promover, interligar e representar a comunidade de investigadores portugueses em Singapura, incentivando a colaboração científica, o desenvolvimento académico e o intercâmbio de talento entre Portugal e Singapura, reforçando a integração desta comunidade no ecossistema internacional de investigação.</p>
+  <p data-en>PINS — Portuguese In Science (Singapore) is an APS science section, whose mission is to promote, connect and represent the Portuguese research community in Singapore, by fostering scientific collaboration, academic development and talent exchange between Portugal and Singapore, while strengthening integration within the international research ecosystem.</p>
+
+  <h2 style="margin-top:2.5rem" data-pt>Objetivos</h2>
+  <h2 style="margin-top:2.5rem" data-en>Objectives</h2>
+  <ul class="obj-list" data-pt>
+    <li>Fomentar a ligação e cooperação científica entre investigadores portugueses em Singapura, promovendo redes académicas interdisciplinares.</li>
+    <li>Promover o intercâmbio de talento científico entre Portugal e Singapura, facilitando contactos, mobilidade académica, colaborações institucionais e oportunidades de carreira.</li>
+    <li>Estimular iniciativas de mentoring, partilha de conhecimento e boas práticas de investigação.</li>
+    <li>Organizar atividades científicas e académicas, incluindo seminários, palestras, workshops e eventos de networking.</li>
+    <li>Representar a comunidade científica portuguesa junto de universidades, centros de investigação, parceiros institucionais e entidades internacionais.</li>
+    <li>Reforçar a visibilidade da ciência portuguesa desenvolvida em Singapura e promover ligações estratégicas com instituições académicas e científicas em Portugal.</li>
+  </ul>
+  <ul class="obj-list" data-en>
+    <li>Foster scientific connection and collaboration among Portuguese researchers in Singapore, encouraging interdisciplinary academic networks.</li>
+    <li>Promote scientific talent exchange between Portugal and Singapore, enabling academic mobility, institutional partnerships, collaboration opportunities and career development.</li>
+    <li>Encourage mentoring initiatives, knowledge sharing and best research practices.</li>
+    <li>Organise scientific and academic activities, including seminars, talks, workshops and networking events.</li>
+    <li>Represent the Portuguese research community in interactions with universities, research institutes, institutional partners and international organisations.</li>
+    <li>Enhance the visibility of Portuguese science conducted in Singapore and strengthen strategic links with academic and research institutions in Portugal.</li>
+  </ul>
+
+  <div class="contact-box" style="margin-top:2.5rem">
+    <h2 data-pt>Pessoa de Contacto</h2>
+    <h2 data-en>Contact Person</h2>
+    <p><strong>Lurdes Reis</strong></p>
+    <p>LinkedIn: <a href="https://www.linkedin.com/company/PortugueseResearchersSG" target="_blank">/PortugueseResearchersSG</a></p>
+    <p>Email: <a href="mailto:science@ptassociationsg.com">science@ptassociationsg.com</a></p>
+    <p>WhatsApp: <a href="#">[Insert WhatsApp link]</a></p>
+  </div>
+</section>
+
+<!-- ============ MEMBERS ============ -->
+<section id="members" class="alt">
+  <div class="inner">
+    <div class="section-label" data-pt>Quem é Quem</div>
+    <div class="section-label" data-en>Who is Who</div>
+    <h2 data-pt>A Nossa Comunidade</h2>
+    <h2 data-en>Our Community</h2>
+    <p data-pt>Podem ser membros da PINS investigadores portugueses ou de nacionalidade portuguesa que desenvolvam ou tenham desenvolvido atividade de investigação em Singapura.</p>
+    <p data-en>PINS members can be Portuguese researchers or researchers of Portuguese nationality who develop or have developed research activity in Singapore.</p>
+
+    <!-- Not logged in -->
+    <div id="gate" class="member-gate">
+      <p style="font-size:1.05rem" data-pt>🔒 O diretório de membros está disponível apenas para membros aprovados.</p>
+      <p style="font-size:1.05rem" data-en>🔒 The member directory is available only to approved members.</p>
+      <button class="btn btn-primary" onclick="openAuth()" data-pt>Entrar / Registar</button>
+      <button class="btn btn-primary" onclick="openAuth()" data-en>Login / Register</button>
+    </div>
+
+    <!-- Logged in -->
+    <div id="memberArea" class="hidden">
+      <h3 data-pt>Comunidade Portuguesa de Investigação em SG</h3>
+      <h3 data-en>Portuguese Research Community in SG</h3>
+      <div class="member-grid" id="currentGrid" style="margin:1rem 0 2.5rem"></div>
+
+      <h3 data-pt>Alumni</h3>
+      <h3 data-en>Alumni</h3>
+      <div class="member-grid" id="alumniGrid" style="margin:1rem 0 2.5rem"></div>
+
+      <h3 data-pt>Networking Científico</h3>
+      <h3 data-en>Scientific Networking</h3>
+      <p data-pt><strong>Junte-se à Rede!</strong> É investigador ou cientista em Singapura? Vamos mostrar o seu trabalho.</p>
+      <p data-en><strong>Join the Network!</strong> Are you a researcher or scientist based in Singapore? Let's showcase your work.</p>
+      <button class="btn btn-outline" onclick="logout()" data-pt>Terminar Sessão</button>
+      <button class="btn btn-outline" onclick="logout()" data-en>Logout</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============ HISTORY ============ -->
+<section id="history">
+  <div class="section-label" data-pt>Fundamentos Históricos</div>
+  <div class="section-label" data-en>Historical Foundations</div>
+  <h2 data-pt>Um Legado de Inovação</h2>
+  <h2 data-en>A Legacy of Innovation</h2>
+  <p style="color:var(--muted);font-style:italic" data-pt>Da medicina do século XIX à impressão 3D do século XXI</p>
+  <p style="color:var(--muted);font-style:italic" data-en>From 19th century medicine to 21st century 3D printing</p>
+
+  <div class="timeline" style="margin-top:2rem">
+    <div class="timeline-item">
+      <div class="year">1825</div>
+      <h3 data-pt>O Cirurgião Pioneiro — Dr. José D'Almeida</h3>
+      <h3 data-en>The Pioneering Surgeon — Dr José D'Almeida</h3>
+      <p data-pt>Estabelecendo uma das primeiras clínicas médicas de Singapura em 1825, d'Almeida foi uma figura crucial no início do assentamento europeu, fundindo a prática médica com a liderança civil.</p>
+      <p data-en>Establishing one of Singapore's first medical clinics in 1825, d'Almeida was a crucial figure in the early European settlement, merging medical practice with civil leadership.</p>
+      <p data-pt><strong>Contribuição Científica:</strong> Membro ativo da Royal Asiatic Society, promoveu a descoberta da Gutta-percha, um material botânico que permitiu os primeiros cabos telegráficos submarinos globais.</p>
+      <p data-en><strong>Scientific Contribution:</strong> An active member of the Royal Asiatic Society, he promoted the discovery of Gutta-percha, a botanical material that enabled the first global undersea telegraph cables.</p>
+    </div>
+
+    <div class="timeline-item">
+      <div class="year" data-pt>Presente</div>
+      <div class="year" data-en>Present</div>
+      <h3 data-pt>Liderando o Futuro — Prof. Paulo Bártolo</h3>
+      <h3 data-en>Leading the Future — Prof. Paulo Bártolo</h3>
+      <p data-pt>Diretor Executivo do Singapore Center for 3D Printing (SC3DP) e Presidente da Cátedra em Fabricação Aditiva da NTU. Uma autoridade global na interface entre biologia e engenharia, ele faz a ponte entre a excelência académica portuguesa e a ambição industrial de Singapura.</p>
+      <p data-en>Executive director of the Singapore Center for 3D Printing (SC3DP) and President Chair in Additive Manufacturing of NTU. A global authority in the interface of biology and engineering, he bridges Portuguese academic excellence with Singapore's industrial ambition.</p>
+    </div>
+
+    <div class="timeline-item">
+      <div class="year">2026</div>
+      <h3 data-pt>Marcos de Cooperação — Horizontes Futuros</h3>
+      <h3 data-en>Milestones of Cooperation — Future Horizons</h3>
+      <p data-pt>Visionando a próxima década de co-descoberta científica e desenvolvimento de talento.</p>
+      <p data-en>Envisioning the next decade of scientific co-discovery and talent development.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ EVENTS ============ -->
+<section id="events" class="alt">
+  <div class="inner">
+    <div class="section-label" data-pt>Eventos PINS</div>
+    <div class="section-label" data-en>PINS Events</div>
+    <h2 data-pt>Eventos</h2>
+    <h2 data-en>Events</h2>
+    <p data-pt>Organizamos uma série de atividades adaptadas à comunidade académica:</p>
+    <p data-en>We organise a range of activities tailored for the academic community:</p>
+
+    <div class="grid grid-2" style="margin-bottom:2rem">
+      <div class="card">
+        <div class="icon">🎤</div>
+        <h3>PINS Talks</h3>
+        <p data-pt>Colóquios científicos onde aprofundamos domínios de investigação específicos.</p>
+        <p data-en>Scientific colloquiums where we deep dive into specific research domains.</p>
+      </div>
+      <div class="card">
+        <div class="icon">📰</div>
+        <h3>PINS Newsletter</h3>
+        <p data-pt>Atualizações trimestrais sobre avanços científicos, descobertas e eventos.</p>
+        <p data-en>Quarterly updates on scientific advances or breakthroughs and events.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🧑‍🏫</div>
+        <h3>PINS Mentoring</h3>
+        <p data-pt>Programa de mentoria para investigadores em início de carreira.</p>
+        <p data-en>Mentoring programme for early-career researchers.</p>
+      </div>
+      <div class="card">
+        <div class="icon">🏭</div>
+        <h3>PINS Industry Visits</h3>
+        <p data-pt>Explorando os melhores laboratórios e polos de inovação de Singapura.</p>
+        <p data-en>Exploring Singapore's top labs and innovation hubs.</p>
+      </div>
+    </div>
+
+    <h3 data-pt>Próximos Eventos</h3>
+    <h3 data-en>Upcoming Events</h3>
+    <div id="eventList" style="display:flex;flex-direction:column;gap:1rem;margin-top:1rem"></div>
+    <p id="noEvents" style="color:var(--muted);font-style:italic" data-pt>Sem eventos futuros de momento.</p>
+    <p id="noEventsEn" style="color:var(--muted);font-style:italic;display:none" data-en>No upcoming events at the moment.</p>
+
+    <div id="adminEventForm" class="hidden" style="margin-top:2rem;background:var(--white);padding:1.5rem;border-radius:var(--radius);box-shadow:var(--shadow)">
+      <h3 data-pt>Adicionar Evento (Admin)</h3>
+      <h3 data-en>Add Event (Admin)</h3>
+      <form onsubmit="addEvent(event)">
+        <div class="form-row">
+          <div><label data-pt>Título</label><label data-en>Title</label><input id="evTitle" required></div>
+          <div><label data-pt>Data</label><label data-en>Date</label><input id="evDate" type="date" required></div>
+        </div>
+        <div><label data-pt>Local</label><label data-en>Location</label><input id="evLocation"></div>
+        <div><label data-pt>Descrição</label><label data-en>Description</label><textarea id="evDesc" rows="2"></textarea></div>
+        <button class="btn btn-primary" type="submit" data-pt>Adicionar</button>
+        <button class="btn btn-primary" type="submit" data-en>Add</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- ============ OPPORTUNITIES ============ -->
+<section id="opportunities">
+  <div class="section-label" data-pt>Oportunidades</div>
+  <div class="section-label" data-en>Opportunities</div>
+  <h2 data-pt>Iniciativas</h2>
+  <h2 data-en>Initiatives</h2>
+  <p data-pt>Programas existentes de cooperação científica luso-singapurense.</p>
+  <p data-en>Existing Portuguese-Singaporean scientific cooperation programmes.</p>
+
+  <div id="initiatives"></div>
+</section>
+
+<!-- ============ REGISTRATION FORM (Modal) ============ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="close" onclick="closeAuth()">×</button>
+    <div id="loginView">
+      <h3 data-pt>Entrar</h3>
+      <h3 data-en>Login</h3>
+      <form onsubmit="login(event)">
+        <div><label>Email</label><input type="email" id="loginEmail" required></div>
+        <div><label data-pt>Palavra-passe</label><label data-en>Password</label><input type="password" id="loginPwd" required></div>
+        <button class="btn btn-primary" type="submit" data-pt>Entrar</button>
+        <button class="btn btn-primary" type="submit" data-en>Login</button>
+      </form>
+      <p style="margin-top:1rem;font-size:.9rem">
+        <a href="#" onclick="showRegister(event)" data-pt>Não tem conta? Registe-se</a>
+        <a href="#" onclick="showRegister(event)" data-en>No account? Register</a>
+      </p>
+      <p style="font-size:.8rem;color:var(--muted);margin-top:.5rem">
+        <em data-pt>Demo: admin@ptassociationsg.com / admin123</em>
+        <em data-en>Demo: admin@ptassociationsg.com / admin123</em>
+      </p>
+    </div>
+
+    <div id="registerView" class="hidden">
+      <h3 data-pt>Registo de Membro</h3>
+      <h3 data-en>Member Registration</h3>
+      <p style="font-size:.85rem;color:var(--muted)" data-pt>O seu registo será revisto por um administrador.</p>
+      <p style="font-size:.85rem;color:var(--muted)" data-en>Your registration will be reviewed by an administrator.</p>
+      <form onsubmit="register(event)">
+        <div><label data-pt>Nome Completo</label><label data-en>Full Name</label><input id="regName" required></div>
+        <div><label>Email</label><input type="email" id="regEmail" required></div>
+        <div><label data-pt>Palavra-passe</label><label data-en>Password</label><input type="password" id="regPwd" required></div>
+        <div><label>LinkedIn</label><input id="regLinkedIn"></div>
+        <div><label>WhatsApp</label><input id="regWhatsApp"></div>
+        <div><label data-pt>Categoria</label><label data-en>Category</label>
+          <select id="regCategory">
+            <option value="current" data-pt>Investigador Atual</option>
+            <option value="current" data-en>Current Researcher</option>
+            <option value="alumni">Alumni</option>
+          </select>
+        </div>
+        <div><label data-pt>Instituição</label><label data-en>Institution</label><input id="regInstitution"></div>
+        <div><label data-pt>Área de Investigação</label><label data-en>Field of Research</label><input id="regField"></div>
+        <button class="btn btn-primary" type="submit" data-pt>Submeter Registo</button>
+        <button class="btn btn-primary" type="submit" data-en>Submit Registration</button>
+      </form>
+      <p style="margin-top:1rem;font-size:.9rem">
+        <a href="#" onclick="showLogin(event)" data-pt>Já tem conta? Entrar</a>
+        <a href="#" onclick="showLogin(event)" data-en>Already have an account? Login</a>
+      </p>
+    </div>
+  </div>
+</div>
+
+<!-- ============ FOOTER ============ -->
+<footer>
+  <div class="foot-logo">PinS — <span data-pt>Portugueses na Ciência (Singapura)</span><span data-en>Portuguese in Science (Singapore)</span></div>
+  <p data-pt>A secção de ciência da APS — Portuguese Association in Singapore</p>
+  <p data-en>The science section of the APS — Portuguese Association in Singapore</p>
+  <p style="margin-top:1rem">
+    <a href="mailto:science@ptassociationsg.com">science@ptassociationsg.com</a> ·
+    <a href="https://www.portugueseassociationsg.com" target="_blank">www.portugueseassociationsg.com</a>
+  </p>
+  <p style="margin-top:1.5rem;font-size:.8rem;opacity:.6">© <span id="year"></span> PinS. <span data-pt>Todos os direitos reservados.</span><span data-en>All rights reserved.</span></p>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* =========
