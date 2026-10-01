@@ -1,0 +1,4 @@
+FROM nginx:stable
+RUN apt-get update && apt-get install -y --no-install-recommends curl && rm -rf /var/lib/apt/lists/*
+RUN sed -i 's/user  nginx;/user  root;/' /etc/nginx/nginx.conf
+COPY nginx.base44.conf /etc/nginx/conf.d/default.conf
