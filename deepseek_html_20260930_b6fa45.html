@@ -518,4 +518,288 @@
 <div class="toast" id="toast"></div>
 
 <script>
-/* =========
+/* ============================================================
+   PinS — Portugueses na Ciência (Singapura)
+   Client-side logic: i18n toggle, auth (localStorage), members,
+   events, initiatives. No backend; all state in localStorage.
+   ============================================================ */
+
+(function () {
+  "use strict";
+
+  /* ---------- State & storage helpers ---------- */
+  var LANG_KEY = "pins_lang";
+  var USER_KEY = "pins_user";
+  var MEMBERS_KEY = "pins_members";
+  var EVENTS_KEY = "pins_events";
+  var REG_KEY = "pins_registrations";
+
+  function load(key, fallback) {
+    try { return JSON.parse(localStorage.getItem(key)) || fallback; }
+    catch (e) { return fallback; }
+  }
+  function save(key, val) { localStorage.setItem(key, JSON.stringify(val)); }
+
+  /* ---------- Seed data ---------- */
+  var SEED_MEMBERS = [
+    { name: "Lurdes Reis", category: "current", institution: "APS PinS", field: "Science Communication", linkedin: "/PortugueseResearchersSG", whatsapp: "" },
+    { name: "Paulo Bártolo", category: "current", institution: "NTU", field: "Additive Manufacturing / 3D Printing", linkedin: "", whatsapp: "" },
+    { name: "Ana Silva", category: "current", institution: "NUS", field: "Biomedical Sciences", linkedin: "", whatsapp: "" },
+    { name: "Carlos Ferreira", category: "alumni", institution: "A*STAR", field: "Materials Science", linkedin: "", whatsapp: "" }
+  ];
+
+  var SEED_EVENTS = [
+    { title: "PINS Talk: 3D Printing in Medicine", date: "2026-10-15", location: "NTU Campus", desc: "Prof. Paulo Bártolo on additive manufacturing for biomedical applications." },
+    { title: "PINS Networking Night", date: "2026-11-08", location: "APS Hub", desc: "Connect with fellow Portuguese researchers across Singapore." }
+  ];
+
+  var INITIATIVES = [
+    { num: 1, pt: { title: "Bolsas de Mobilidade", body: "Programas de mobilidade académica entre Portugal e Singapura, apoiando estadias de investigação e intercâmbio." }, en: { title: "Mobility Grants", body: "Academic mobility programmes between Portugal and Singapore, supporting research stays and exchange." } },
+    { num: 2, pt: { title: "Co-financiamento de Projetos", body: "Apoio a projetos conjuntos de investigação entre instituições portuguesas e singapurenses." }, en: { title: "Project Co-funding", body: "Support for joint research projects between Portuguese and Singaporean institutions." } },
+    { num: 3, pt: { title: "Programa de Mentoria", body: "Investigadores séniores mentoram investigadores em início de carreira na comunidade PinS." }, en: { title: "Mentoring Programme", body: "Senior researchers mentor early-career researchers in the PinS community." } }
+  ];
+
+  /* ---------- i18n ---------- */
+  function setLang(lang) {
+    var isPt = lang === "pt";
+    document.querySelectorAll("[data-pt]").forEach(function (el) { el.style.display = isPt ? "" : "none"; });
+    document.querySelectorAll("[data-en]").forEach(function (el) { el.style.display = isPt ? "none" : ""; });
+    document.getElementById("btn-pt").classList.toggle("active", isPt);
+    document.getElementById("btn-en").classList.toggle("active", !isPt);
+    save(LANG_KEY, lang);
+    document.documentElement.lang = lang;
+  }
+
+  /* ---------- Toast ---------- */
+  var toastTimer;
+  function toast(msg) {
+    var t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function () { t.classList.remove("show"); }, 3000);
+  }
+
+  /* ---------- Auth ---------- */
+  function currentUser() { return load(USER_KEY, null); }
+
+  function updateAuthUI() {
+    var user = currentUser();
+    var btnPt = document.getElementById("authBtn");
+    var btnEn = document.getElementById("authBtnEn");
+    if (user) {
+      btnPt.textContent = "Olá, " + user.name;
+      btnPt.onclick = logout;
+      btnEn.textContent = "Hi, " + user.name;
+      btnEn.onclick = logout;
+      document.getElementById("gate").classList.add("hidden");
+      document.getElementById("memberArea").classList.remove("hidden");
+      if (user.admin) document.getElementById("adminEventForm").classList.remove("hidden");
+    } else {
+      btnPt.textContent = "Entrar";
+      btnPt.onclick = openAuth;
+      btnEn.textContent = "Login";
+      btnEn.onclick = openAuth;
+      document.getElementById("gate").classList.remove("hidden");
+      document.getElementById("memberArea").classList.add("hidden");
+      document.getElementById("adminEventForm").classList.add("hidden");
+    }
+  }
+
+  function openAuth() {
+    showLogin();
+    document.getElementById("authModal").classList.add("open");
+  }
+  function closeAuth() {
+    document.getElementById("authModal").classList.remove("open");
+  }
+
+  function showLogin(e) {
+    if (e) e.preventDefault();
+    document.getElementById("loginView").classList.remove("hidden");
+    document.getElementById("registerView").classList.add("hidden");
+  }
+  function showRegister(e) {
+    if (e) e.preventDefault();
+    document.getElementById("loginView").classList.add("hidden");
+    document.getElementById("registerView").classList.remove("hidden");
+  }
+
+  function login(e) {
+    e.preventDefault();
+    var email = document.getElementById("loginEmail").value.trim();
+    var pwd = document.getElementById("loginPwd").value;
+    var members = load(MEMBERS_KEY, SEED_MEMBERS);
+    var regs = load(REG_KEY, []);
+    var user = null;
+    if (email === "admin@ptassociationsg.com" && pwd === "admin123") {
+      user = { name: "Admin", email: email, admin: true };
+    } else {
+      var m = members.concat(regs).find(function (x) { return x.email === email && x.pwd === pwd; });
+      if (m) user = { name: m.name, email: m.email, admin: false };
+    }
+    if (user) {
+      save(USER_KEY, user);
+      closeAuth();
+      updateAuthUI();
+      renderMembers();
+      toast(currentUser().name === "Admin" ? "Bem-vindo, Admin! / Welcome, Admin!" : "Sessão iniciada / Logged in");
+    } else {
+      toast("Credenciais inválidas / Invalid credentials");
+    }
+  }
+
+  function register(e) {
+    e.preventDefault();
+    var reg = {
+      name: document.getElementById("regName").value.trim(),
+      email: document.getElementById("regEmail").value.trim(),
+      pwd: document.getElementById("regPwd").value,
+      linkedin: document.getElementById("regLinkedIn").value.trim(),
+      whatsapp: document.getElementById("regWhatsApp").value.trim(),
+      category: document.getElementById("regCategory").value,
+      institution: document.getElementById("regInstitution").value.trim(),
+      field: document.getElementById("regField").value.trim(),
+      approved: false
+    };
+    var regs = load(REG_KEY, []);
+    regs.push(reg);
+    save(REG_KEY, regs);
+    closeAuth();
+    toast("Registo submetido — será revisto por um administrador. / Registration submitted — pending admin review.");
+    document.querySelector("#registerView form").reset();
+  }
+
+  function logout() {
+    localStorage.removeItem(USER_KEY);
+    updateAuthUI();
+    toast("Sessão terminada / Logged out");
+  }
+
+  /* ---------- Members ---------- */
+  function initials(name) {
+    return name.split(" ").map(function (w) { return w[0]; }).join("").slice(0, 2).toUpperCase();
+  }
+
+  function memberCard(m) {
+    var div = document.createElement("div");
+    div.className = "member-card";
+    var links = "";
+    if (m.linkedin) links += '<a href="https://www.linkedin.com/company/' + m.linkedin.replace(/^\//, "") + '" target="_blank">LinkedIn</a>';
+    if (m.whatsapp) links += (links ? " · " : "") + '<a href="#">WhatsApp</a>';
+    div.innerHTML =
+      '<div class="avatar">' + initials(m.name) + '</div>' +
+      '<div class="meta"><strong>' + m.name + '</strong></div>' +
+      '<div class="meta">' + (m.institution || "") + '</div>' +
+      '<div class="meta">' + (m.field || "") + '</div>' +
+      links;
+    return div;
+  }
+
+  function renderMembers() {
+    var members = load(MEMBERS_KEY, SEED_MEMBERS);
+    if (localStorage.getItem(MEMBERS_KEY) === null) save(MEMBERS_KEY, SEED_MEMBERS);
+    var current = members.filter(function (m) { return m.category === "current"; });
+    var alumni = members.filter(function (m) { return m.category === "alumni"; });
+    var cg = document.getElementById("currentGrid");
+    var ag = document.getElementById("alumniGrid");
+    cg.innerHTML = ""; ag.innerHTML = "";
+    current.forEach(function (m) { cg.appendChild(memberCard(m)); });
+    alumni.forEach(function (m) { ag.appendChild(memberCard(m)); });
+  }
+
+  /* ---------- Events ---------- */
+  function renderEvents() {
+    var events = load(EVENTS_KEY, SEED_EVENTS);
+    if (localStorage.getItem(EVENTS_KEY) === null) save(EVENTS_KEY, SEED_EVENTS);
+    var list = document.getElementById("eventList");
+    list.innerHTML = "";
+    var months = ["JAN","FEB","MAR","APR","MAY","JUN","JUL","AUG","SEP","OCT","NOV","DEC"];
+    if (!events.length) {
+      document.getElementById("noEvents").style.display = "";
+      document.getElementById("noEventsEn").style.display = "";
+      return;
+    }
+    document.getElementById("noEvents").style.display = "none";
+    document.getElementById("noEventsEn").style.display = "none";
+    events.forEach(function (ev) {
+      var d = new Date(ev.date);
+      var card = document.createElement("div");
+      card.className = "event-card";
+      card.innerHTML =
+        '<div class="event-date"><div class="day">' + d.getDate() + '</div><div class="mon">' + (months[d.getMonth()] || "") + '</div></div>' +
+        '<div><h3 style="margin-bottom:.25rem">' + ev.title + '</h3>' +
+        (ev.location ? '<p style="font-size:.85rem;color:var(--muted);margin-bottom:.25rem">📍 ' + ev.location + '</p>' : '') +
+        (ev.desc ? '<p style="font-size:.9rem">' + ev.desc + '</p>' : '') +
+        '</div>';
+      list.appendChild(card);
+    });
+  }
+
+  function addEvent(e) {
+    e.preventDefault();
+    var user = currentUser();
+    if (!user || !user.admin) { toast("Apenas admin / Admin only"); return; }
+    var ev = {
+      title: document.getElementById("evTitle").value.trim(),
+      date: document.getElementById("evDate").value,
+      location: document.getElementById("evLocation").value.trim(),
+      desc: document.getElementById("evDesc").value.trim()
+    };
+    if (!ev.title || !ev.date) { toast("Título e data obrigatórios / Title and date required"); return; }
+    var events = load(EVENTS_KEY, SEED_EVENTS);
+    events.push(ev);
+    save(EVENTS_KEY, events);
+    renderEvents();
+    document.querySelector("#adminEventForm form").reset();
+    toast("Evento adicionado / Event added");
+  }
+
+  /* ---------- Initiatives ---------- */
+  function renderInitiatives() {
+    var lang = load(LANG_KEY, "pt");
+    var container = document.getElementById("initiatives");
+    container.innerHTML = "";
+    INITIATIVES.forEach(function (it) {
+      var data = lang === "en" ? it.en : it.pt;
+      var div = document.createElement("div");
+      div.className = "initiative";
+      div.innerHTML =
+        '<span class="num">' + it.num + '</span><strong>' + data.title + '</strong>' +
+        '<p style="margin-top:.5rem;margin-bottom:0">' + data.body + '</p>';
+      container.appendChild(div);
+    });
+  }
+
+  /* ---------- Expose to inline handlers ---------- */
+  window.setLang = function (lang) {
+    setLang(lang);
+    renderInitiatives();
+  };
+  window.openAuth = openAuth;
+  window.closeAuth = closeAuth;
+  window.showRegister = showRegister;
+  window.showLogin = showLogin;
+  window.login = login;
+  window.register = register;
+  window.logout = logout;
+  window.addEvent = addEvent;
+
+  /* ---------- Init ---------- */
+  document.addEventListener("DOMContentLoaded", function () {
+    var lang = load(LANG_KEY, "pt");
+    setLang(lang);
+    renderInitiatives();
+    renderMembers();
+    renderEvents();
+    updateAuthUI();
+    document.getElementById("year").textContent = new Date().getFullYear();
+    // close modal on overlay click
+    document.getElementById("authModal").addEventListener("click", function (e) {
+      if (e.target === this) closeAuth();
+    });
+  });
+})();
+</script>
+</body>
+</html>

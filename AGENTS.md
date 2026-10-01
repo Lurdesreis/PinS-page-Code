@@ -19,15 +19,13 @@ docker compose -f docker-compose.base44.yml up -d
 - Rebuild only when `Dockerfile.base44` or `nginx.base44.conf` change:
   `docker compose -f docker-compose.base44.yml up -d --build`.
 
-## Known issue
-The committed HTML file is **truncated**: its final `<script>` block contains
-only `/* =========` and then EOF — no JavaScript, no closing `</script>` /
-`</body>` / `</html>`. The page therefore renders its static HTML/CSS, but every
-interactive handler it references (`setLang`, `openAuth`, `closeAuth`,
-`showRegister`, `showLogin`, `login`, `register`, `logout`, `addEvent`, plus the
-member/event/initiative renderers) is missing, so the PT/EN toggle, auth modal,
-member directory and events do not work. Completing this JS is a code task, not
-a setup task.
+## Page logic
+The HTML file's `<script>` block implements all client-side behaviour: PT/EN
+i18n toggle (`setLang`), auth modal (`openAuth`/`closeAuth`/`showLogin`/
+`showRegister`), localStorage-backed login & registration (`login`/`register`/
+`logout`), member directory rendering, events with admin add-form, and
+initiatives. Demo admin: `admin@ptassociationsg.com` / `admin123`. All state
+persists in `localStorage` (keys prefixed `pins_`). No backend.
 
 ## Verification
 - `curl -s -o /dev/null -w "%{http_code}" http://localhost:3000/` → `200`
